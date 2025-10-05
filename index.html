@@ -3,520 +3,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mirai AI Platform - Technical Architecture</title>
-    <meta name="description" content="Technical architecture and workflow documentation for Mirai AI Platform">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🚀</text></svg>">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #0a0a0a;
-            color: #ffffff;
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-
-        .header {
-            text-align: center;
-            padding: 80px 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin-bottom: 0;
-        }
-
-        .header h1 {
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 700;
-            margin-bottom: 15px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
-        }
-
-        .header p {
-            font-size: clamp(1rem, 2.5vw, 1.4rem);
-            opacity: 0.95;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
-
-        .section {
-            background: #1a1a1a;
-            border-radius: 20px;
-            padding: 50px 40px;
-            margin-bottom: 40px;
-            border: 1px solid #333;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-
-        .section-title {
-            font-size: clamp(1.8rem, 4vw, 2.5rem);
-            margin-bottom: 40px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align: center;
-        }
-
-        .architecture-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin: 40px 0;
-        }
-
-        .component-card {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-radius: 16px;
-            padding: 30px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.4s ease;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
-        }
-
-        .component-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-        }
-
-        .component-card:hover::before {
-            left: 100%;
-        }
-
-        .component-card:hover {
-            transform: translateY(-10px) scale(1.02);
-            box-shadow: 0 25px 50px rgba(102, 126, 234, 0.4);
-        }
-
-        .component-card h3 {
-            font-size: 1.6rem;
-            margin-bottom: 15px;
-            font-weight: 600;
-        }
-
-        .component-card p {
-            font-size: 1rem;
-            opacity: 0.95;
-            line-height: 1.5;
-        }
-
-        .flow-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            margin: 50px 0;
-            flex-wrap: wrap;
-            padding: 20px;
-        }
-
-        .flow-step {
-            background: #2a2a2a;
-            border: 3px solid #667eea;
-            border-radius: 50%;
-            width: 90px;
-            height: 90px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            font-weight: bold;
-            color: #667eea;
-            transition: all 0.4s ease;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
-        }
-
-        .flow-step:hover {
-            background: #667eea;
-            color: white;
-            transform: scale(1.15);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5);
-        }
-
-        .flow-arrow {
-            font-size: 2.5rem;
-            color: #667eea;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.6; }
-            50% { opacity: 1; }
-        }
-
-        .flow-description {
-            text-align: center;
-            margin-top: 30px;
-            font-size: 1.1rem;
-            background: #2a2a2a;
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 4px solid #667eea;
-        }
-
-        .tech-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
-        }
-
-        .tech-item {
-            background: #2a2a2a;
-            border: 1px solid #444;
-            border-radius: 12px;
-            padding: 25px;
-            text-align: center;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .tech-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            transform: scaleX(0);
-            transition: transform 0.3s ease;
-        }
-
-        .tech-item:hover::before {
-            transform: scaleX(1);
-        }
-
-        .tech-item:hover {
-            border-color: #667eea;
-            background: #333;
-            transform: translateY(-5px);
-        }
-
-        .tech-item h4 {
-            color: #667eea;
-            margin-bottom: 10px;
-            font-size: 1.2rem;
-            font-weight: 600;
-        }
-
-        .demo-buttons {
-            text-align: center;
-            margin: 50px 0;
-        }
-
-        .demo-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 18px 35px;
-            border-radius: 30px;
-            font-size: 1.2rem;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 15px;
-            transition: all 0.3s ease;
-            text-decoration: none;
-            display: inline-block;
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .demo-btn:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5);
-        }
-
-        .data-flow {
-            background: #2a2a2a;
-            border-radius: 16px;
-            padding: 40px;
-            margin: 40px 0;
-            text-align: center;
-            border: 1px solid #444;
-        }
-
-        .status-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 40px;
-            margin: 30px 0;
-        }
-
-        .status-section {
-            background: #2a2a2a;
-            padding: 30px;
-            border-radius: 16px;
-            border: 1px solid #444;
-        }
-
-        .status-section h3 {
-            margin-bottom: 20px;
-            font-size: 1.4rem;
-        }
-
-        .status-list {
-            list-style: none;
-            padding: 0;
-        }
-
-        .status-list li {
-            padding: 8px 0;
-            font-size: 1rem;
-            border-bottom: 1px solid #333;
-        }
-
-        .status-list li:last-child {
-            border-bottom: none;
-        }
-
-        @media (max-width: 768px) {
-            .flow-container {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .flow-arrow {
-                transform: rotate(90deg);
-            }
-
-            .status-grid {
-                grid-template-columns: 1fr;
-                gap: 20px;
-            }
-
-            .section {
-                padding: 30px 20px;
-                margin-bottom: 20px;
-            }
-        }
-
-        /* Loading animation */
-        .section {
-            opacity: 0;
-            transform: translateY(30px);
-            animation: fadeInUp 0.8s ease forwards;
-        }
-
-        .section:nth-child(1) { animation-delay: 0.1s; }
-        .section:nth-child(2) { animation-delay: 0.2s; }
-        .section:nth-child(3) { animation-delay: 0.3s; }
-        .section:nth-child(4) { animation-delay: 0.4s; }
-
-        @keyframes fadeInUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-    </style>
+    <meta name="description" content="Mirai Studio - Technical workflow diagram for content creation and management">
+    <meta name="keywords" content="Mirai Studio, Content Creation, Workflow Diagram, Content Management, Social Media">
+    <meta name="author" content="Mirai Studio">
+    <meta property="og:title" content="Mirai Studio - Technical Workflow">
+    <meta property="og:description" content="Explore the complete content creation and management workflow of the Mirai Studio">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://mirai-mauve.vercel.app/mirai-logo.png">
+    <meta name="theme-color" content="#F9C636">
+    
+    <title>Mirai Studio - Technical Workflow</title>
+    
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjlDNjM2IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTIwLjI0IDEyLjI0YTkgOSAwIDAgMC01LjQ4LTguOTdBOSA5IDAgMCAwIDEuNTQgMy4yNyA5IDkgMCAwIDAgMyAxOGMuMTguMTguNDMuMjcuNjcuMjdoMWE5IDkgMCAwIDAgOSA5IDkgOSAwIDAgMCA2LjU3LTIuODIiLz48cGF0aCBkPSJNMy41MSA5YTkgOSAwIDAgMSAxOCAwIi8+PC9zdmc+">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRjlDNjM2IiBzdHJva2Utd2lkdGg9IjIiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCI+PHBhdGggZD0iTTIwLjI0IDEyLjI0YTkgOSAwIDAgMC01LjQ4LTguOTdBOSA5IDAgMCAwIDEuNTQgMy4yNyA5IDkgMCAwIDAgMyAxOGMuMTguMTguNDMuMjcuNjcuMjdoMWE5IDkgMCAwIDAgOSA5IDkgOSAwIDAgMCA2LjU3LTIuODIiLz48cGF0aCBkPSJNMy41MSA5YTkgOSAwIDAgMSAxOCAwIi8+PC9zdmc+">
+    
+    <!-- Web fonts and stylesheets -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="main.css">
 </head>
 <body>
-    <div class="header">
-        <h1>🚀 Mirai AI Platform</h1>
-        <p>Technical Architecture & Workflow Documentation</p>
-    </div>
+    <!-- 1. Header Section -->
+    <header class="header">
+        <div class="header-content">
+            <a href="#" class="site-title">
+                <i class="fas fa-brain"></i>
+                Mirai AI Platform
+            </a>
+            <nav>
+                <ul class="nav-menu">
+                    <li><a href="#hero" class="nav-link">Home</a></li>
+                    <li><a href="#workflow" class="nav-link">Architecture</a></li>
+                    <li><a href="#tech-stack" class="nav-link">Tech Stack</a></li>
+                    <li><a href="#footer" class="nav-link">Links</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
 
-    <div class="container">
-        <!-- Architecture Components -->
-        <div class="section">
-            <h2 class="section-title">🏗️ System Architecture</h2>
-            <div class="architecture-grid">
-                <div class="component-card">
-                    <h3>Frontend Layer</h3>
-                    <p>React 18 + Vite + Tailwind CSS<br>Deployed on Vercel<br>Modern UI/UX</p>
-                </div>
-                <div class="component-card">
-                    <h3>Backend Services</h3>
-                    <p>Node.js + Express.js<br>Deployed on Render<br>RESTful APIs</p>
-                </div>
-                <div class="component-card">
-                    <h3>Database Layer</h3>
-                    <p>MongoDB Atlas<br>Prisma ORM<br>Cloud Storage</p>
-                </div>
-                <div class="component-card">
-                    <h3>AI Integration</h3>
-                    <p>6 AI Providers<br>Groq, OpenAI, Cohere<br>Intelligent Fallbacks</p>
-                </div>
-                <div class="component-card">
-                    <h3>Authentication</h3>
-                    <p>Clerk + JWT<br>Secure Sessions<br>Social Logins</p>
-                </div>
-                <div class="component-card">
-                    <h3>Payment Gateway</h3>
-                    <p>Razorpay Integration<br>Pro Subscriptions<br>Webhook Processing</p>
-                </div>
+    <!-- 2. Hero Section -->
+    <section id="hero" class="hero section">
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-rocket"></i>
+                AI-Powered Content Creation Platform
+            </div>
+            <h1 class="hero-title">Mirai AI Platform</h1>
+            <p class="hero-subtitle">The Future of Intelligent Content Generation</p>
+            <p class="hero-description">
+                A comprehensive AI-powered platform revolutionizing content creation and business planning. 
+                Built with cutting-edge technology, Mirai integrates 6 leading AI providers, advanced authentication, 
+                secure payment processing, and intelligent content generation for Instagram, LinkedIn, Twitter, 
+                and blogs. Transform your workflow with the power of artificial intelligence.
+            </p>
+            <div class="cta-buttons">
+                <a href="#workflow" class="cta-button">
+                    <i class="fas fa-sitemap"></i>
+                    Explore Architecture
+                </a>
+                <a href="#tech-stack" class="cta-button secondary">
+                    <i class="fas fa-code"></i>
+                    View Tech Stack
+                </a>
             </div>
         </div>
+    </section>
 
-        <!-- User Flow -->
-        <div class="section">
-            <h2 class="section-title">👤 User Journey Flow</h2>
-            <div class="flow-container">
-                <div class="flow-step">1</div>
-                <div class="flow-arrow">→</div>
-                <div class="flow-step">2</div>
-                <div class="flow-arrow">→</div>
-                <div class="flow-step">3</div>
-                <div class="flow-arrow">→</div>
-                <div class="flow-step">4</div>
-                <div class="flow-arrow">→</div>
-                <div class="flow-step">5</div>
+    <!-- 3. Architecture & Workflow Section -->
+    <section id="workflow" class="workflow-section section">
+        <div class="container">
+            <h2 class="section-title">MIRAI TECHNICAL WORKFLOW</h2>
+            <p class="section-subtitle">
+                Interactive workflow diagram showcasing the content creation, review, 
+                and publishing process within the Mirai Studio ecosystem.
+            </p>
+
+            <div class="workflow-diagram">
+                <img src="Pink Blue and Yellow Modern Social Media Post Flowchart Whiteboard.png" 
+                     alt="Mirai Technical Workflow Diagram" 
+                     class="workflow-image" 
+                     title="Mirai Studio Content Creation and Management Workflow">
             </div>
-            <div class="flow-description">
-                <p><strong>1.</strong> User Registration/Login → <strong>2.</strong> Access Dashboard → <strong>3.</strong> Generate Content → <strong>4.</strong> AI Processing → <strong>5.</strong> View Results</p>
+                
             </div>
         </div>
+    </section>
 
-        <!-- Tech Stack -->
-        <div class="section">
-            <h2 class="section-title">⚙️ Technology Stack</h2>
+    <!-- 4. Tech Stack Section -->
+    <section id="tech-stack" class="tech-stack section">
+        <div class="container">
+            <h2 class="section-title" style="color: white;">Complete Technology Ecosystem</h2>
+            <p class="section-subtitle" style="color: rgba(255, 255, 255, 0.8);">
+                Comprehensive overview of cutting-edge technologies, frameworks, and services 
+                powering the Mirai AI Platform's intelligent content generation capabilities.
+            </p>
+            
             <div class="tech-grid">
-                <div class="tech-item">
-                    <h4>Frontend</h4>
-                    <p>React 18, Vite, Tailwind CSS</p>
-                </div>
-                <div class="tech-item">
-                    <h4>Backend</h4>
-                    <p>Node.js, Express.js</p>
-                </div>
-                <div class="tech-item">
-                    <h4>Database</h4>
-                    <p>MongoDB Atlas, Prisma</p>
-                </div>
-                <div class="tech-item">
-                    <h4>AI Providers</h4>
-                    <p>Groq, OpenAI, Cohere, HF</p>
-                </div>
-                <div class="tech-item">
-                    <h4>Authentication</h4>
-                    <p>Clerk, JWT Tokens</p>
-                </div>
-                <div class="tech-item">
-                    <h4>Payments</h4>
-                    <p>Razorpay Gateway</p>
-                </div>
-                <div class="tech-item">
-                    <h4>Frontend Hosting</h4>
-                    <p>Vercel Platform</p>
-                </div>
-                <div class="tech-item">
-                    <h4>Backend Hosting</h4>
-                    <p>Render Platform</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Data Flow Diagram -->
-        <div class="section">
-            <h2 class="section-title">📊 Data Flow Architecture</h2>
-            <div class="data-flow">
-                <svg width="100%" height="300" viewBox="0 0 900 300" style="max-width: 100%; height: auto;">
-                    <!-- User -->
-                    <rect x="50" y="120" width="100" height="60" fill="#667eea" rx="12"/>
-                    <text x="100" y="155" text-anchor="middle" fill="white" font-size="16" font-weight="bold">User</text>
-                    
-                    <!-- Frontend -->
-                    <rect x="200" y="120" width="100" height="60" fill="#667eea" rx="12"/>
-                    <text x="250" y="145" text-anchor="middle" fill="white" font-size="14">React App</text>
-                    <text x="250" y="165" text-anchor="middle" fill="white" font-size="14">(Vercel)</text>
-                    
-                    <!-- Backend -->
-                    <rect x="350" y="120" width="100" height="60" fill="#38a169" rx="12"/>
-                    <text x="400" y="145" text-anchor="middle" fill="white" font-size="14">Express API</text>
-                    <text x="400" y="165" text-anchor="middle" fill="white" font-size="14">(Render)</text>
-                    
-                    <!-- Database -->
-                    <rect x="500" y="120" width="100" height="60" fill="#ed8936" rx="12"/>
-                    <text x="550" y="145" text-anchor="middle" fill="white" font-size="14">MongoDB</text>
-                    <text x="550" y="165" text-anchor="middle" fill="white" font-size="14">(Atlas)</text>
-                    
-                    <!-- AI -->
-                    <rect x="650" y="120" width="100" height="60" fill="#9f7aea" rx="12"/>
-                    <text x="700" y="145" text-anchor="middle" fill="white" font-size="14">AI Providers</text>
-                    <text x="700" y="165" text-anchor="middle" fill="white" font-size="14">(6 APIs)</text>
-                    
-                    <!-- Arrows -->
-                    <defs>
-                        <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
-                            <polygon points="0 0, 10 3.5, 0 7" fill="#667eea"/>
-                        </marker>
-                    </defs>
-                    
-                    <line x1="150" y1="150" x2="200" y2="150" stroke="#667eea" stroke-width="3" marker-end="url(#arrowhead)"/>
-                    <line x1="300" y1="150" x2="350" y2="150" stroke="#667eea" stroke-width="3" marker-end="url(#arrowhead)"/>
-                    <line x1="450" y1="150" x2="500" y2="150" stroke="#667eea" stroke-width="3" marker-end="url(#arrowhead)"/>
-                    <line x1="600" y1="150" x2="650" y2="150" stroke="#667eea" stroke-width="3" marker-end="url(#arrowhead)"/>
-                    
-                    <!-- Labels -->
-                    <text x="175" y="135" text-anchor="middle" fill="#ccc" font-size="12">HTTPS</text>
-                    <text x="325" y="135" text-anchor="middle" fill="#ccc" font-size="12">REST API</text>
-                    <text x="475" y="135" text-anchor="middle" fill="#ccc" font-size="12">Prisma</text>
-                    <text x="625" y="135" text-anchor="middle" fill="#ccc" font-size="12">API Calls</text>
-                </svg>
-            </div>
-        </div>
-
-        <!-- Live Demo -->
-        <div class="section">
-            <h2 class="section-title">🎮 Live Platform Access</h2>
-            <div class="demo-buttons">
-                <a href="https://mirai-ejxu.vercel.app" target="_blank" class="demo-btn">
-                    🚀 Live Demo
-                </a>
-                <a href="https://github.com/Niteshagarwal01/Mirai" target="_blank" class="demo-btn">
-                    📂 Source Code
-                </a>
-                <a href="https://mirai-5qov.onrender.com" target="_blank" class="demo-btn">
-                    🔌 API Backend
-                </a>
-            </div>
-        </div>
-
-        <!-- Current Status -->
-        <div class="section">
-            <h2 class="section-title">✅ Platform Status & Roadmap</h2>
-            <div class="status-grid">
-                <div class="status-section">
-                    <h3 style="color: #4ade80;">🟢 Currently Working</h3>
-                    <ul class="status-list">
-                        <li>✅ Content Generation (Instagram, LinkedIn, Twitter, Blog)</li>
-                        <li>✅ AI Business Plan Generator</li>
-                        <li>✅ Multi-AI Provider Integration (6 APIs)</li>
-                        <li>✅ User Authentication & JWT Security</li>
-                        <li>✅ Pro Subscription & Payment Processing</li>
-                        <li>✅ Admin Dashboard & Analytics</li>
+                <div class="tech-category">
+                    <h3><i class="fas fa-paint-brush"></i>Frontend Technologies</h3>
+                    <ul class="tech-list">
+                        <li class="tech-item">
+                            <i class="fab fa-react tech-icon"></i>
+                            <span class="tech-name">React 18.2.0</span>
+                            <span class="tech-badge">Core</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-bolt tech-icon"></i>
+                            <span class="tech-name">Vite Build Tool</span>
+                            <span class="tech-badge">Fast</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-palette tech-icon"></i>
+                            <span class="tech-name">Tailwind CSS</span>
+                            <span class="tech-badge">Styling</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-route tech-icon"></i>
+                            <span class="tech-name">React Router</span>
+                            <span class="tech-badge">Navigation</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-cloud tech-icon"></i>
+                            <span class="tech-name">Vercel Deployment</span>
+                            <span class="tech-badge">Hosting</span>
+                        </li>
                     </ul>
                 </div>
-                <div class="status-section">
-                    <h3 style="color: #fbbf24;">🟡 Coming Soon</h3>
-                    <ul class="status-list">
-                        <li>🔄 AI Video Content Generation</li>
-                        <li>🔄 Voice Agent Integration</li>
-                        <li>🔄 Email Marketing Automation</li>
-                        <li>🔄 Advanced Analytics Dashboard</li>
-                        <li>🔄 Mobile Application</li>
-                        <li>🔄 Enterprise API & Integrations</li>
+
+                <div class="tech-category">
+                    <h3><i class="fas fa-server"></i>Backend Infrastructure</h3>
+                    <ul class="tech-list">
+                        <li class="tech-item">
+                            <i class="fab fa-node-js tech-icon"></i>
+                            <span class="tech-name">Node.js 18+</span>
+                            <span class="tech-badge">Runtime</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-rocket tech-icon"></i>
+                            <span class="tech-name">Express.js</span>
+                            <span class="tech-badge">Framework</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-database tech-icon"></i>
+                            <span class="tech-name">Prisma ORM</span>
+                            <span class="tech-badge">Database</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-key tech-icon"></i>
+                            <span class="tech-name">JWT Authentication</span>
+                            <span class="tech-badge">Security</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-cogs tech-icon"></i>
+                            <span class="tech-name">Render Hosting</span>
+                            <span class="tech-badge">Cloud</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tech-category">
+                    <h3><i class="fas fa-brain"></i>AI & Machine Learning</h3>
+                    <ul class="tech-list">
+                        <li class="tech-item">
+                            <i class="fas fa-zap tech-icon"></i>
+                            <span class="tech-name">Groq (Llama 3.3)</span>
+                            <span class="tech-badge">Primary</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-robot tech-icon"></i>
+                            <span class="tech-name">OpenAI GPT-4</span>
+                            <span class="tech-badge">Advanced</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-atom tech-icon"></i>
+                            <span class="tech-name">Cohere API</span>
+                            <span class="tech-badge">NLP</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-heart tech-icon"></i>
+                            <span class="tech-name">HuggingFace</span>
+                            <span class="tech-badge">Open Source</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-magic tech-icon"></i>
+                            <span class="tech-name">Claude & Gemini</span>
+                            <span class="tech-badge">Fallback</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tech-category">
+                    <h3><i class="fas fa-shield-alt"></i>Authentication & Security</h3>
+                    <ul class="tech-list">
+                        <li class="tech-item">
+                            <i class="fas fa-user-shield tech-icon"></i>
+                            <span class="tech-name">Clerk Authentication</span>
+                            <span class="tech-badge">Primary</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-certificate tech-icon"></i>
+                            <span class="tech-name">JWT Tokens</span>
+                            <span class="tech-badge">Secure</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fab fa-google tech-icon"></i>
+                            <span class="tech-name">Social Logins</span>
+                            <span class="tech-badge">OAuth</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-lock tech-icon"></i>
+                            <span class="tech-name">Role-Based Access</span>
+                            <span class="tech-badge">RBAC</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-eye tech-icon"></i>
+                            <span class="tech-name">Session Management</span>
+                            <span class="tech-badge">Control</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tech-category">
+                    <h3><i class="fas fa-credit-card"></i>Payment & Subscriptions</h3>
+                    <ul class="tech-list">
+                        <li class="tech-item">
+                            <i class="fas fa-rupee-sign tech-icon"></i>
+                            <span class="tech-name">Razorpay Gateway</span>
+                            <span class="tech-badge">Primary</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-bell tech-icon"></i>
+                            <span class="tech-name">Webhook Integration</span>
+                            <span class="tech-badge">Real-time</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-crown tech-icon"></i>
+                            <span class="tech-name">Pro Subscriptions</span>
+                            <span class="tech-badge">Premium</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-chart-pie tech-icon"></i>
+                            <span class="tech-name">Usage Tracking</span>
+                            <span class="tech-badge">Analytics</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-shield-virus tech-icon"></i>
+                            <span class="tech-name">Secure Transactions</span>
+                            <span class="tech-badge">Encrypted</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="tech-category">
+                    <h3><i class="fas fa-tools"></i>DevOps & Deployment</h3>
+                    <ul class="tech-list">
+                        <li class="tech-item">
+                            <i class="fab fa-github tech-icon"></i>
+                            <span class="tech-name">GitHub Repository</span>
+                            <span class="tech-badge">Source</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-sync-alt tech-icon"></i>
+                            <span class="tech-name">CI/CD Pipeline</span>
+                            <span class="tech-badge">Automated</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-leaf tech-icon"></i>
+                            <span class="tech-name">MongoDB Atlas</span>
+                            <span class="tech-badge">Database</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-chart-line tech-icon"></i>
+                            <span class="tech-name">Performance Monitoring</span>
+                            <span class="tech-badge">Insights</span>
+                        </li>
+                        <li class="tech-item">
+                            <i class="fas fa-globe tech-icon"></i>
+                            <span class="tech-name">Global CDN</span>
+                            <span class="tech-badge">Fast</span>
+                        </li>
                     </ul>
                 </div>
             </div>
         </div>
-    </div>
+    </section>
+
+    <!-- 5. Footer Section -->
+    <footer id="footer" class="footer section">
+        <div class="footer-content">
+            <h2 class="footer-title">
+                <i class="fas fa-brain"></i>
+                Mirai AI Platform
+            </h2>
+            <p class="footer-description">
+                Experience the future of AI-powered content creation. Open source, cutting-edge technology, 
+                and ready to transform your content generation workflow with intelligent automation.
+            </p>
+            
+            <!-- Platform Statistics -->
+            <div class="footer-stats">
+                <div class="stat-item">
+                    <span class="stat-number">12+</span>
+                    <span class="stat-label">AI Providers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">6+</span>
+                    <span class="stat-label">Content Platforms</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">Subscription Tiers</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">∞</span>
+                    <span class="stat-label">Possibilities</span>
+                </div>
+            </div>
+            
+            <div class="footer-links">
+                <a href="https://github.com/Niteshagarwal01/Mirai" target="_blank" rel="noopener noreferrer" class="footer-link">
+                    <i class="fab fa-github"></i>
+                    GitHub Source
+                </a>
+                <a href="https://mirai-mauve.vercel.app/" target="_blank" rel="noopener noreferrer" class="footer-link">
+                    <i class="fas fa-external-link-alt"></i>
+                    Live Demo
+                </a>
+                <a href="https://mirai-6qov.onrender.com" target="_blank" rel="noopener noreferrer" class="footer-link">
+                    <i class="fas fa-server"></i>
+                    Backend API
+                </a>
+                <a href="mailto:musicniteshagarwal@gmail.com" class="footer-link">
+                    <i class="fas fa-envelope"></i>
+                    Contact Us
+                </a>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2024 Mirai AI Platform. Built with ❤️ and cutting-edge AI technology.</p>
+                <p>Empowering creativity through intelligent content generation • Open Source • MIT License</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="main.js"></script>
 </body>
 </html>
+
